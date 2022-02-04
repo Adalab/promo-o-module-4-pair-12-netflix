@@ -7,6 +7,7 @@ const path = require("path");
 const server = express();
 server.use(cors());
 server.use(express.json());
+server.set('view engine', 'ejs');
 
 // init express aplication
 const serverPort = 4000;
@@ -20,7 +21,13 @@ server.get("/movies", (req, res) => {
   };
   res.json(data);
 });
-
+server.get('/movie/:movieId', (req, res) => { 
+  const foundMovie = dataMovies
+  .find(dataMovie => dataMovie.id === req.params.movieId) 
+  console.log(req.params.movieId);
+  console.log(foundMovie);
+  res.render('movie', foundMovie);
+});
 // config express static server
 const staticServerPath = "./src/public-react";
 server.use(express.static(staticServerPath));

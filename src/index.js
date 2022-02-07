@@ -1,32 +1,48 @@
 const express = require("express");
 const cors = require("cors");
-const dataMovies = require("./data/movies.json");
 const path = require("path");
+const Database = require("better-sqlite3");
 
 // create and config server
 const server = express();
 server.use(cors());
 server.use(express.json());
-server.set('view engine', 'ejs');
+server.set("view engine", "ejs");
+
+//config database
+const db = Database("./src/db/database.db", { verbose: console.log });
 
 // init express aplication
 const serverPort = 4000;
 server.listen(serverPort, () => {
   console.log(`Server listening at http://localhost:${serverPort}`);
 });
+
 server.get("/movies", (req, res) => {
+  const query = db.prepare("SELECT * FROM movies ORDER BY title");
+  const movies = query.all();
   const data = {
     success: true,
-    movies: dataMovies,
+    movies: movies,
   };
   res.json(data);
 });
-server.get('/movie/:movieId', (req, res) => { 
-  const foundMovie = dataMovies
-  .find(dataMovie => dataMovie.id === req.params.movieId) 
+
+server.get("/movies/:gender", (req, res) => {
+  const query = db.prepare("SELECT * FROM movies WHERE gender= ? ");
+  const movies = query.all(req.params.gender);
+  const data = {
+    success: true,
+    movies: movies,
+  };
+  res.json(data);
+});
+
+server.get("/movie/:movieId", (req, res) => {
+  const foundMovie = movies.find((movie) => movie.id === req.params.movieId);
   console.log(req.params.movieId);
   console.log(foundMovie);
-  res.render('movie', foundMovie);
+  res.render("movie", foundMovie);
 });
 // config express static server
 const staticServerPath = "./src/public-react";

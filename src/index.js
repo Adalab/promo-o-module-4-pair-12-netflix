@@ -28,6 +28,16 @@ server.get("/movies", (req, res) => {
   res.json(data);
 });
 
+server.post("/#/signup", (req, res) => {
+  const query = db.prepare("INSERT INTO users (email, password) VALUES (?, ?)");
+  const result = query.run(req.params.email, req.params.password);
+  const data = {
+    success: true,
+    userId: "nuevo-id-añadido",
+  };
+  res.json(data);
+});
+
 server.get("/movies/:gender", (req, res) => {
   const query = db.prepare("SELECT * FROM movies WHERE gender= ? ");
   const movies = query.all(req.params.gender);

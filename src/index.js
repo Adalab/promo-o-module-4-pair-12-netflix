@@ -28,7 +28,17 @@ server.get("/movies", (req, res) => {
   res.json(data);
 });
 
-server.post("/#/signup", (req, res) => {
+server.get("/movies/sort=desc", (req, res) => {
+  const query = db.prepare("SELECT * FROM movies ORDER BY title DESC");
+  const movies = query.all();
+  const data = {
+    success: true,
+    movies: movies,
+  };
+  res.json(data);
+});
+
+server.post("/sign-up", (req, res) => {
   const query = db.prepare("INSERT INTO users (email, password) VALUES (?, ?)");
   const result = query.run(req.params.email, req.params.password);
   const data = {
@@ -49,11 +59,16 @@ server.get("/movies/:gender", (req, res) => {
 });
 
 server.get("/movie/:movieId", (req, res) => {
-  const foundMovie = movies.find((movie) => movie.id === req.params.movieId);
+  const query = db.prepare("SELECT * FROM movies WHERE id= ?");
+  const foundMovie = query.all(req.params.movieId);
   console.log(req.params.movieId);
-  console.log(foundMovie);
-  res.render("movie", foundMovie);
+  console.log(foundMovie[0]);
+  res.render("movie", foundMovie[0]);
+  // const foundMovie = movies.find((movie) => movie.id === req.params.movieId);
+  // res.render("movie", foundMovie);
+  // console.log(foundMovie);
 });
+
 // config express static server
 const staticServerPath = "./src/public-react";
 server.use(express.static(staticServerPath));
